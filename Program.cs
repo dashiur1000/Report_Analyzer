@@ -10,14 +10,14 @@ class Test
         LoadFile(FoundPath(FileName), FileName);
 
     }
-    static string FoundPath(string filename)
+    static string FoundPath(string filename) // מציאת הנתיב המדוייק לקובץ הטקסט
     {
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
         DirectoryInfo projectDir = Directory.GetParent(baseDir).Parent.Parent.Parent;
         string FullPath = Path.Combine(projectDir.FullName, filename);
         return FullPath;
     }
-    static int?[] LoadFile(string FullPath, string FileName)
+    static int?[] LoadFile(string FullPath, string FileName) // null בדיקת קובץ קיים והדפסת מספר שורות והחזרת מערך של המספר או 
     { 
         if (File.Exists(FullPath))
         {
@@ -43,6 +43,19 @@ class Test
             return notFound;
         }
     }
-    
-    
+    static int ProcessReports(string[] lines, Array[] records, string FullPath, string FileName)
+    {
+        if(LoadFile(FullPath, FileName) != null)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+    static void RowAnalysis(string[] lines)
+    {
+
+    }
 }
