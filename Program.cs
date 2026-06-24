@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics; //*
 namespace Demo;
 public enum ReportType { Collect, Analyze, Recon, Intel }
 public enum ReportStatus { Pending, Approved, Rejected }
@@ -7,7 +8,8 @@ class Test
 {
     static void Main()
     {
-        
+        Trace.Listeners.Add(new TextWriterTraceListener("log.txt")); //*
+        Trace.AutoFlush = true; //*
         string FileName = "reports.txt";
         //LoadFile(FoundPath(FileName), FileName);
         ProcessReports(FileName, FileName);
@@ -15,16 +17,16 @@ class Test
     }
     static string FoundPath(string filename) // מציאת הנתיב המדוייק לקובץ הטקסט
     {
-        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        DirectoryInfo projectDir = Directory.GetParent(baseDir).Parent.Parent.Parent;
-        string FullPath = Path.Combine(projectDir.FullName, filename);
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory; // חדש
+        DirectoryInfo projectDir = Directory.GetParent(baseDir).Parent.Parent.Parent; // חדש
+        string FullPath = Path.Combine(projectDir.FullName, filename); // חדש
         return FullPath;
     }
     static int?[] LoadFile(string FullPath, string FileName) // null בדיקת קובץ קיים והדפסת מספר שורות והחזרת מערך של המספר או 
     { 
-        if (File.Exists(FullPath))
+        if (File.Exists(FullPath)) // חדש
         {
-            string[] lines = File.ReadAllLines(FullPath);
+            string[] lines = File.ReadAllLines(FullPath); // חדש
             int lineCount = lines.Length;
             if (lineCount > 0)
             {
@@ -122,7 +124,7 @@ class Test
                 ScoreArrey[index] = Score;
                 StatusArrey[index] = ReportStatus;
                 Valid++;
-                //Console.WriteLine($"Unit: {lineSplit[0]}\nType: {lineSplit[1]}\nPriority: {lineSplit[2]}\nScore: {lineSplit[3]}\nStatus: {lineSplit[4]}");
+                Trace.WriteLine($"Unit: {lineSplit[0]}\nType: {lineSplit[1]}\nPriority: {lineSplit[2]}\nScore: {lineSplit[3]}\nStatus: {lineSplit[4]}"); //*
             }
             Console.WriteLine("Processing complete.");
             Console.WriteLine($"Valid records: {Valid}");
@@ -136,7 +138,7 @@ class Test
         }
         
     }
-    static string[] RowAnalysis(string FullPath) // קריאת הקובץ
+    static string[] RowAnalysis(string FullPath) // קריאת הקובץ ושמירת המערך
     {
         string[] lines = File.ReadAllLines(FullPath);
         return lines;
@@ -144,13 +146,13 @@ class Test
     static string[] RowArrey (string AllLines) // הכנסה של כל שורה לשורה נפרדת לצורך בדיקות
     {
         string line = string.Join(Environment.NewLine, AllLines);
-        string[] lineToCheck = line.Split(',');
+        string[] lineToCheck = line.Split(','); // חדש
         return lineToCheck;
     }
     static bool ValidByEnum<T>(string variable) where T : struct, Enum
     {
-        string variableCapital = char.ToUpper(variable[0]) + variable.Substring(1).ToLower();
-        return Enum.TryParse<T>(variable, true, out _);
+        string variableCapital = char.ToUpper(variable[0]) + variable.Substring(1).ToLower(); // חדש
+        return Enum.TryParse<T>(variable, true, out _); // חדש
         
     } // פונקציה הבודקת האם הערך נמצא באינום  
     static int ValidByPriority(int variable) // פונקציית בדיקה האם רמת העדיפות בין 1 ל 5
