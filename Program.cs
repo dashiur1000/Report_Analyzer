@@ -18,7 +18,6 @@ class Test
         int validLines = ProcessReports(FullPath, FileName, UnitNameArrey, ReportTypeArrey, PriorityArrey, ScoreArrey, StatusArrey);
           
         
-        FindMinScore(ScoreArrey, validLines);
         DisplayBasicStatistics(ScoreArrey, validLines);
         DisplayStatusCounts(StatusArrey, validLines);
         DisplayTypeCounts(ReportTypeArrey, validLines);
@@ -67,12 +66,17 @@ class Test
             string[] AllLines = RowAnalysis(FoundPath(FullPath));
             for (int index = 0; index < AllLines.Length; index++)
             {
-                string[] lineSplit = RowArrey(AllLines[index]);
-                string UnitName = lineSplit[0];
-                string ReportType = lineSplit[1];
-                if (ValidByEnum<ReportType>(lineSplit[1]))
+                string[] lineSplit = AllLines[index].Split(',');
+                if(lineSplit.Length != 5)
                 {
-                    ReportType = lineSplit[1];
+                    Invalid++;
+                    continue;
+                }
+                string UnitName = lineSplit[0].Trim();
+                string ReportType = lineSplit[1].Trim();
+                if (ValidByEnum<ReportType>(ReportType))
+                {
+                    ReportType = lineSplit[1].Trim();
                 }
                 else
                 {
@@ -116,21 +120,25 @@ class Test
                     Invalid++;
                     continue;
                 }
-                string StatusName = lineSplit[4];
-                string ReportStatus = lineSplit[4];
-                if (ValidByEnum<ReportStatus>(lineSplit[1]))
+                string ReportStatus = lineSplit[4].Trim();
+                string ValidReportStatus = "";
+                if (ValidByEnum<ReportStatus>(ReportStatus))
                 {
-                    ReportStatus = lineSplit[1];
+                    ValidReportStatus = ReportStatus;
+                }
+                else
+                {
+                    Invalid++;
+                    continue;
                 }
                 UnitNameArrey[Valid] = UnitName;
                 ReportTypeArrey[Valid] = ReportType;
                 PriorityArrey[Valid] = Priority;
                 ScoreArrey[Valid] = Score;
-                StatusArrey[Valid] = ReportStatus;
+                StatusArrey[Valid] = ValidReportStatus;
                 Valid++;
                 Console.WriteLine($"Unit: {lineSplit[0]}\nType: {lineSplit[1]}\nPriority: {lineSplit[2]}\nScore: {lineSplit[3]}\nStatus: {lineSplit[4]}"); //*
             }
-            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Processing complete.");
             Console.WriteLine($"Valid records: {Valid}");
             Console.WriteLine($"Invalid records: {Invalid}");
@@ -153,12 +161,12 @@ class Test
         }
         return lines;
     }
-    static string[] RowArrey(string AllLines) // הכנסה של כל שורה לשורה נפרדת לצורך בדיקות
-    {
-        string line = string.Join(Environment.NewLine, AllLines);
-        string[] lineToCheck = line.Split(','); // חדש
-        return lineToCheck;
-    }
+    //static string[] RowArrey(string AllLines) // הכנסה של כל שורה לשורה נפרדת לצורך בדיקות
+    //{
+    //    string line = string.Join(Environment.NewLine, AllLines);
+    //    string[] lineToCheck = line.Split(','); // חדש
+    //    return lineToCheck;
+    //}
     static bool ValidByEnum<T>(string variable) where T : struct, Enum  // פונקציה הבודקת האם הערך נמצא באינום 
     {
         string variableCapital = char.ToUpper(variable[0]) + variable.Substring(1).ToLower(); // חדש
@@ -173,7 +181,7 @@ class Test
     }
     static double ValidByScore(double variable) // פונקציית בדיקה האם רמת האיכות בין 0.0 ל100.0
     {
-        if (variable > 0.0 & variable <= 100.0)
+        if (variable >= 0.0 & variable <= 100.0)
             return variable;
         return 0;
 
@@ -186,9 +194,14 @@ class Test
             
             sum += Score[i];
         }
-        double Average = sum / validLines;
-        //Console.WriteLine($"{Average:F2}");
-        return Average;
+        if (validLines > 0)
+        {
+            double Average = sum / validLines;
+            return Average;
+        }
+        else
+            return 0;
+        
     }
     static double FindMaxScore(double[] Score, int validLines) // הציון הגבוה ביותר
     {
@@ -223,7 +236,7 @@ class Test
         double Average = CalculateAverage(Score, validLines);
         double Max = FindMaxScore(Score, validLines);
         double Min = FindMinScore(Score, validLines);
-        Console.WriteLine("= Report Statistics =");
+        Console.WriteLine("=== Report Statistics ===");
         Console.WriteLine($"Total Reports: {validLines}");
         Console.WriteLine($"Average Score: {Average:F2}");
         Console.WriteLine($"Highest Score: {Max:F1}");
@@ -242,7 +255,7 @@ class Test
     }
     static void DisplayStatusCounts(string[] Status, int validLines) // מפעיל את פונקציית ספירה לפי סטטוס לכל ססטוס ומדפיס
     {
-        Console.WriteLine("= Reports by Status =");
+        Console.WriteLine("=== Reports by Status ===");
         int Pending = CountByStatus(Status, validLines, "Pending");
         Console.WriteLine($"Pending: {Pending}");
         int Approved = CountByStatus(Status, validLines, "Approved");
@@ -264,7 +277,7 @@ class Test
     }
     static void DisplayTypeCounts(string[] ReportType, int validLines) // מפעיל את פונקציית ספירה לפי דו"חות לכל דו"ח ומדפיס
     {
-        Console.WriteLine("= Reports by Type === ");
+        Console.WriteLine("=== Reports by Type === ");
         int Collect = CountByType(ReportType, validLines, "Collect");
         Console.WriteLine($"Collect: {Collect}");
         int Analyze = CountByType(ReportType, validLines, "Analyze");
@@ -291,7 +304,7 @@ class Test
                 }
             }
         }
-        Console.WriteLine("= Highest Priority Approved Report =");
+        Console.WriteLine("=== Highest Priority Approved Report ===");
         Console.WriteLine($"Unit: {UnitNameArrey[index]}");
         Console.WriteLine($"Type: {ReportTypeArrey[index]}");
         Console.WriteLine($"Priority: {PriorityArrey[index]}");
@@ -340,7 +353,7 @@ class Test
            
         }
         
-        Console.WriteLine("= Average Score by Priority === ");
+        Console.WriteLine("=== Average Score by Priority === ");
         if (one > 0)
         {
             Console.WriteLine($"Priority 1: {one / oneCont:F2}");
@@ -380,7 +393,6 @@ class Test
         else
         {
             Console.WriteLine("Priority 5: No reports");
-            Console.ResetColor();
         }
     }
 }
