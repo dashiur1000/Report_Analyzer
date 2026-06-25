@@ -16,14 +16,14 @@ class Test
         string[] StatusArrey = new string[100];
 
         int validLines = ProcessReports(FullPath, FileName, UnitNameArrey, ReportTypeArrey, PriorityArrey, ScoreArrey, StatusArrey);
-        Trace.Listeners.Add(new TextWriterTraceListener("log.txt")); //*
-        Trace.AutoFlush = true; //*
-        
+          
         
         FindMinScore(ScoreArrey, validLines);
-
-
-
+        DisplayBasicStatistics(ScoreArrey, validLines);
+        DisplayStatusCounts(StatusArrey, validLines);
+        DisplayTypeCounts(ReportTypeArrey, validLines);
+        DisplayHighestPriorityApproved(UnitNameArrey, ReportTypeArrey, PriorityArrey, ScoreArrey, StatusArrey, validLines);
+        DisplayAverageByPriority(PriorityArrey, ScoreArrey, validLines);
     }
     static string FoundPath(string filename) // מציאת הנתיב המדוייק לקובץ הטקסט
     {
@@ -128,9 +128,9 @@ class Test
                 ScoreArrey[Valid] = Score;
                 StatusArrey[Valid] = ReportStatus;
                 Valid++;
-                Trace.WriteLine($"Unit: {lineSplit[0]}\nType: {lineSplit[1]}\nPriority: {lineSplit[2]}\nScore: {lineSplit[3]}\nStatus: {lineSplit[4]}"); //*
+                Console.WriteLine($"Unit: {lineSplit[0]}\nType: {lineSplit[1]}\nPriority: {lineSplit[2]}\nScore: {lineSplit[3]}\nStatus: {lineSplit[4]}"); //*
             }
-
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Processing complete.");
             Console.WriteLine($"Valid records: {Valid}");
             Console.WriteLine($"Invalid records: {Invalid}");
@@ -178,7 +178,7 @@ class Test
         return 0;
 
     }
-    static double CalculateAverage(double[] Score, int validLines)
+    static double CalculateAverage(double[] Score, int validLines) // מציאת הממוצע של הציונים
     {
         double sum = 0;
         for (int i = 0; i < validLines; i++)
@@ -190,7 +190,7 @@ class Test
         //Console.WriteLine($"{Average:F2}");
         return Average;
     }
-    static double FindMaxScore(double[] Score, int validLines)
+    static double FindMaxScore(double[] Score, int validLines) // הציון הגבוה ביותר
     {
         double maxScore = 0;
         for (int i = 0; i < validLines; i++)
@@ -203,9 +203,9 @@ class Test
         //Console.WriteLine(maxScore);
         return maxScore;
     }
-    static double FindMinScore(double[] Score, int validLines)
+    static double FindMinScore(double[] Score, int validLines) // הציון הנמוך ביותר
     {
-        double minScore = 0;
+        double minScore = 100.0;
         {
             for (int i = 0; i < validLines; i++)
             {
@@ -218,8 +218,169 @@ class Test
         //WriteLine($"{minScore:F1}");
         return minScore;
     }
-    static void DisplayBasicStatistics(double[] Score, int validLines)
+    static void DisplayBasicStatistics(double[] Score, int validLines) // הדפסת הציון הממוצע, הגבוה והנמוך
     {
+        double Average = CalculateAverage(Score, validLines);
+        double Max = FindMaxScore(Score, validLines);
+        double Min = FindMinScore(Score, validLines);
+        Console.WriteLine("= Report Statistics =");
+        Console.WriteLine($"Total Reports: {validLines}");
+        Console.WriteLine($"Average Score: {Average:F2}");
+        Console.WriteLine($"Highest Score: {Max:F1}");
+        Console.WriteLine($"Lowest Score: {Min:F1}");
+    }
+    static int CountByStatus(string[] Status, int validLines, string statusType) // שומר כמות סטטוס לפי מה שמוכנס
+    {
+        int statusConut = 0;
+        for (int i = 0; i < validLines; i++)
+        {
+            if(Status[i].ToLower() == statusType.ToLower())
+            {
+                statusConut++;
+            }
+        }return statusConut;
+    }
+    static void DisplayStatusCounts(string[] Status, int validLines) // מפעיל את פונקציית ספירה לפי סטטוס לכל ססטוס ומדפיס
+    {
+        Console.WriteLine("= Reports by Status =");
+        int Pending = CountByStatus(Status, validLines, "Pending");
+        Console.WriteLine($"Pending: {Pending}");
+        int Approved = CountByStatus(Status, validLines, "Approved");
+        Console.WriteLine($"Approved: {Approved}");
+        int Rejected = CountByStatus(Status, validLines, "Rejected");
+        Console.WriteLine($"Rejected: {Rejected}");
+    }
+    static int CountByType(string[] ReportType, int validLines, string Type) // סופר כמות דוחו"ת לפי סוג
+    {
+        int TypeConut = 0;
+        for (int i = 0; i < validLines; i++)
+        {
+            if (ReportType[i].ToLower() == Type.ToLower())
+            {
+                TypeConut++;
+            }
+        }
+        return TypeConut;
+    }
+    static void DisplayTypeCounts(string[] ReportType, int validLines) // מפעיל את פונקציית ספירה לפי דו"חות לכל דו"ח ומדפיס
+    {
+        Console.WriteLine("= Reports by Type === ");
+        int Collect = CountByType(ReportType, validLines, "Collect");
+        Console.WriteLine($"Collect: {Collect}");
+        int Analyze = CountByType(ReportType, validLines, "Analyze");
+        Console.WriteLine($"Analyze: {Analyze}");
+        int Recon = CountByType(ReportType, validLines, "Recon");
+        Console.WriteLine($"Recon: {Recon}");
+        int Intel = CountByType(ReportType, validLines, "Intel");
+        Console.WriteLine($"Intel: {Intel}");
+    }
+    static void DisplayHighestPriorityApproved(string[] UnitNameArrey, string[] ReportTypeArrey, int[] PriorityArrey, double[] ScoreArrey, string[] StatusArrey, int validLines)
+    {
+        string[] Status = StatusArrey;
+        string Approved = "Approved";
+        int Priority = 0;
+        int index = 0;
+        for (int i = 0; i < validLines; i++)
+        {
+            if (Status[i].ToLower() == Approved.ToLower())
+            {
+                if (PriorityArrey[i] > Priority)
+                {
+                    Priority = PriorityArrey[i];
+                    index = i;
+                }
+            }
+        }
+        Console.WriteLine("= Highest Priority Approved Report =");
+        Console.WriteLine($"Unit: {UnitNameArrey[index]}");
+        Console.WriteLine($"Type: {ReportTypeArrey[index]}");
+        Console.WriteLine($"Priority: {PriorityArrey[index]}");
+        Console.WriteLine($"Score: {ScoreArrey[index]:F1}");
+    }
+    static void DisplayAverageByPriority(int[] PriorityArrey, double[] ScoreArrey, int validLines)
+    {
+        double one = 0;
+        double oneCont = 0;
+        double two = 0;
+        double twoCount = 0;
+        double three = 0;
+        double threeCount = 0;
+        double four = 0;
+        double fourCount = 0;
+        double five = 0;
+        double fiveCount = 0;
 
+        for (int i = 0; i < validLines; i++)
+        {
+            if (PriorityArrey[i] == 1)
+            {
+                one += ScoreArrey[i];
+                oneCont++;
+            }
+            else if (PriorityArrey[i] == 2)
+            {
+                two += ScoreArrey[i];
+                twoCount++;
+            }
+            else if (PriorityArrey[i] == 3)
+            {
+                three += ScoreArrey[i];
+                threeCount++;
+            }
+            else if (PriorityArrey[i] == 4)
+            {
+                four += ScoreArrey[i];
+                fourCount++;
+            }
+            else if (PriorityArrey[i]== 5)
+            {
+                five += ScoreArrey[i];
+                fiveCount++;
+            }
+           
+        }
+        
+        Console.WriteLine("= Average Score by Priority === ");
+        if (one > 0)
+        {
+            Console.WriteLine($"Priority 1: {one / oneCont:F2}");
+        }
+        else
+        {
+            Console.WriteLine("Priority 1: No reports");
+        }
+        if (two > 0)
+        {
+            Console.WriteLine($"Priority 2: {two / twoCount:F2}");
+        }
+        else
+        {
+            Console.WriteLine("Priority 2: No reports");
+        }
+        if(three > 0)
+        {
+            Console.WriteLine($"Priority 3: {three / threeCount:F2}");
+        }
+        else
+        {
+            Console.WriteLine("Priority 3: No reports");
+        }
+        if(four > 0)
+        {
+            Console.WriteLine($"Priority 4: {four / fourCount:F2}");
+        }
+        else
+        {
+            Console.WriteLine("Priority 4: No reports");
+        }
+        if(five > 0)
+        {
+            Console.WriteLine($"Priority 5: {five / fiveCount:F2}");
+        }
+        else
+        {
+            Console.WriteLine("Priority 5: No reports");
+            Console.ResetColor();
+        }
     }
 }
