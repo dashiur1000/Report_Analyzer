@@ -6,12 +6,23 @@ class Test
 {
     static void Main()
     {
+        string FileName = "reports.txt";
+        string FullPath = FoundPath(FileName);
+        
+        string[] UnitNameArrey = new string[100];
+        string[] ReportTypeArrey = new string[100];
+        int[] PriorityArrey = new int[100];
+        double[] ScoreArrey = new double[100];
+        string[] StatusArrey = new string[100];
+
+        int validLines = ProcessReports(FullPath, FileName, UnitNameArrey, ReportTypeArrey, PriorityArrey, ScoreArrey, StatusArrey);
         Trace.Listeners.Add(new TextWriterTraceListener("log.txt")); //*
         Trace.AutoFlush = true; //*
-        string FileName = "reports.txt";
-        //LoadFile(FoundPath(FileName), FileName);
-        ProcessReports(FoundPath(FileName), FileName);
-        CalculateAverage(ValidationOfHealth(FoundPath(FileName), FileName));
+        
+        
+        FindMinScore(ScoreArrey, validLines);
+
+
 
     }
     static string FoundPath(string filename) // מציאת הנתיב המדוייק לקובץ הטקסט
@@ -47,18 +58,12 @@ class Test
             return notFound;
         }
     }
-    static int ProcessReports(string FullPath, string FileName) // עובר בלולאה על השורות מאמת כל אחת ונותן מספר שורות תקינות
+    static int ProcessReports(string FullPath, string FileName, string[] UnitNameArrey, string[] ReportTypeArrey, int[] PriorityArrey, double[] ScoreArrey, string[] StatusArrey) // עובר בלולאה על השורות מאמת כל אחת ונותן מספר שורות תקינות
     {
         int Valid = 0;
         int Invalid = 0;
         if (LoadFile(FoundPath(FullPath), FileName) != null)
         {
-            string[] UnitNameArrey = new string[100];
-            string[] ReportTypeArrey = new string[100];
-            int[] PriorityArrey = new int[100];
-            double[] ScoreArrey = new double[100];
-            string[] StatusArrey = new string[100];
-
             string[] AllLines = RowAnalysis(FoundPath(FullPath));
             for (int index = 0; index < AllLines.Length; index++)
             {
@@ -117,11 +122,11 @@ class Test
                 {
                     ReportStatus = lineSplit[1];
                 }
-                UnitNameArrey[index] = UnitName;
-                ReportTypeArrey[index] = ReportType;
-                PriorityArrey[index] = Priority;
-                ScoreArrey[index] = Score;
-                StatusArrey[index] = ReportStatus;
+                UnitNameArrey[Valid] = UnitName;
+                ReportTypeArrey[Valid] = ReportType;
+                PriorityArrey[Valid] = Priority;
+                ScoreArrey[Valid] = Score;
+                StatusArrey[Valid] = ReportStatus;
                 Valid++;
                 Trace.WriteLine($"Unit: {lineSplit[0]}\nType: {lineSplit[1]}\nPriority: {lineSplit[2]}\nScore: {lineSplit[3]}\nStatus: {lineSplit[4]}"); //*
             }
@@ -130,7 +135,7 @@ class Test
             Console.WriteLine($"Valid records: {Valid}");
             Console.WriteLine($"Invalid records: {Invalid}");
             Console.WriteLine($"Stored {Valid} valid records for analysis");
-            return ScoreArrey.Length;
+            return Valid;
         }
         else
         {
@@ -159,7 +164,7 @@ class Test
         string variableCapital = char.ToUpper(variable[0]) + variable.Substring(1).ToLower(); // חדש
         return Enum.TryParse<T>(variable, true, out _); // חדש
 
-    } 
+    }
     static int ValidByPriority(int variable) // פונקציית בדיקה האם רמת העדיפות בין 1 ל 5
     {
         if (variable > 0 & variable <= 5)
@@ -173,114 +178,48 @@ class Test
         return 0;
 
     }
-    static object[] ValidationOfHealth(string FullPath, string FileName) // מייצר מערך של כל המערכים לצורך ביצוע חישובים
+    static double CalculateAverage(double[] Score, int validLines)
     {
-        int Valid = 0;
-        int Invalid = 0;
-        if (LoadFile(FoundPath(FullPath), FileName) != null)
+        double sum = 0;
+        for (int i = 0; i < validLines; i++)
         {
-            string[] UnitNameArrey = new string[100];
-            string[] ReportTypeArrey = new string[100];
-            int[] PriorityArrey = new int[100];
-            double[] ScoreArrey = new double[100];
-            string[] StatusArrey = new string[100];
-
-            string[] AllLines = RowAnalysis(FoundPath(FullPath));
-            for (int index = 0; index < AllLines.Length; index++)
+            
+            sum += Score[i];
+        }
+        double Average = sum / validLines;
+        //Console.WriteLine($"{Average:F2}");
+        return Average;
+    }
+    static double FindMaxScore(double[] Score, int validLines)
+    {
+        double maxScore = 0;
+        for (int i = 0; i < validLines; i++)
+        {
+            if(Score[i] > maxScore)
             {
-                int WhileLoop = 1;
-                while (WhileLoop == 1)
+                maxScore = Score[i];
+            }
+        }
+        //Console.WriteLine(maxScore);
+        return maxScore;
+    }
+    static double FindMinScore(double[] Score, int validLines)
+    {
+        double minScore = 0;
+        {
+            for (int i = 0; i < validLines; i++)
+            {
+                if(Score[i] < minScore)
                 {
-                    string[] lineSplit = RowArrey(AllLines[index]);
-                    string UnitName = lineSplit[0];
-                    string ReportType = lineSplit[1];
-                    if (ValidByEnum<ReportType>(lineSplit[1]))
-                    {
-                        ReportType = lineSplit[1];
-                    }
-                    else
-                    {
-                        Invalid++;
-                        WhileLoop = 0;
-                    }
-
-                    int Priority = 0;
-                    if (int.TryParse(lineSplit[2], out int PriorityToValid))
-                    {
-                        if (ValidByPriority(PriorityToValid) == PriorityToValid)
-                        {
-                            Priority = PriorityToValid;
-                        }
-                        else
-                        {
-                            Invalid++;
-                            WhileLoop = 0;
-                        }
-                    }
-                    else
-                    {
-                        Invalid++;
-                        WhileLoop = 0;
-                    }
-                    double Score = 0.0;
-                    if (double.TryParse(lineSplit[3], out double ScoreToValid))
-                    {
-                        if (ValidByScore(ScoreToValid) == ScoreToValid)
-                        {
-                            Score = ScoreToValid;
-                        }
-                        else
-                        {
-                            Invalid++;
-                            WhileLoop = 0;
-                        }
-                    }
-                    else
-                    {
-                        Invalid++;
-                        WhileLoop = 0;
-                    }
-                    string StatusName = lineSplit[4];
-                    string ReportStatus = lineSplit[4];
-                    if (ValidByEnum<ReportStatus>(lineSplit[1]))
-                    {
-                        ReportStatus = lineSplit[1];
-                    }
-                    UnitNameArrey[index] = UnitName;
-                    ReportTypeArrey[index] = ReportType;
-                    PriorityArrey[index] = Priority;
-                    ScoreArrey[index] = Score;
-                    StatusArrey[index] = ReportStatus;
-                    Valid++;
-                    WhileLoop = 0;
+                    minScore = Score[i];
                 }
             }
-            
-            object[] AllArrays = new object[5];
-
-            AllArrays[0] = UnitNameArrey;
-            AllArrays[1] = ReportTypeArrey;
-            AllArrays[2] = PriorityArrey;
-            AllArrays[3] = ScoreArrey;
-            AllArrays[4] = StatusArrey;
-      
-            return AllArrays;
         }
-        else
-        {
-            object[] AllArrays = new object[1];
-            return AllArrays;
-        }
-
+        //WriteLine($"{minScore:F1}");
+        return minScore;
     }
-    static double CalculateAverage(object[] AllArrays, string FileName)
+    static void DisplayBasicStatistics(double[] Score, int validLines)
     {
-        double[] Score =(double[])AllArrays[3];
-        double sum = 0;
-        for (int i = 0; i < ProcessReports(FoundPath(FileName), FileName); i++)
-        {
-            Console.WriteLine($"{i+1}: {Score[i]}");
-        }
-        return sum;
+
     }
 }
