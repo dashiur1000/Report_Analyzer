@@ -61,9 +61,9 @@ class Test
     {
         int Valid = 0;
         int Invalid = 0;
-        if (LoadFile(FoundPath(FullPath), FileName) != null)
+        if (LoadFile(FullPath, FileName) != null)
         {
-            string[] AllLines = RowAnalysis(FoundPath(FullPath));
+            string[] AllLines = RowAnalysis(FullPath);
             for (int index = 0; index < AllLines.Length; index++)
             {
                 string[] lineSplit = AllLines[index].Split(',');
@@ -161,12 +161,6 @@ class Test
         }
         return lines;
     }
-    //static string[] RowArrey(string AllLines) // הכנסה של כל שורה לשורה נפרדת לצורך בדיקות
-    //{
-    //    string line = string.Join(Environment.NewLine, AllLines);
-    //    string[] lineToCheck = line.Split(','); // חדש
-    //    return lineToCheck;
-    //}
     static bool ValidByEnum<T>(string variable) where T : struct, Enum  // פונקציה הבודקת האם הערך נמצא באינום 
     {
         string variableCapital = char.ToUpper(variable[0]) + variable.Substring(1).ToLower(); // חדש
