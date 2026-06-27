@@ -1,4 +1,4 @@
-﻿using System.Diagnostics; //*
+﻿using System;
 namespace Demo;
 public enum ReportType { Collect, Analyze, Recon, Intel }
 public enum ReportStatus { Pending, Approved, Rejected }
@@ -188,7 +188,7 @@ class Test
             
             sum += Score[i];
         }
-        if (validLines > 0)
+        if (validLines > 0) // אבטחה אישית שלא מתחלק ב0
         {
             double Average = sum / validLines;
             return Average;
@@ -207,7 +207,6 @@ class Test
                 maxScore = Score[i];
             }
         }
-        //Console.WriteLine(maxScore);
         return maxScore;
     }
     static double FindMinScore(double[] Score, int validLines) // הציון הנמוך ביותר
@@ -222,7 +221,6 @@ class Test
                 }
             }
         }
-        //WriteLine($"{minScore:F1}");
         return minScore;
     }
     static void DisplayBasicStatistics(double[] Score, int validLines) // הדפסת הציון הממוצע, הגבוה והנמוך
@@ -236,49 +234,37 @@ class Test
         Console.WriteLine($"Highest Score: {Max:F1}");
         Console.WriteLine($"Lowest Score: {Min:F1}");
     }
-    static int CountByStatus(string[] Status, int validLines, string statusType) // שומר כמות סטטוס לפי מה שמוכנס
+    static int CountByStatusOrType(string[] Status, int validLines, string statusOrType) // שומר כמות סטטוס לפי מה שמוכנס
     {
-        int statusConut = 0;
+        int Conut = 0;
         for (int i = 0; i < validLines; i++)
         {
-            if(Status[i].ToLower() == statusType.ToLower())
+            if(Status[i].ToLower() == statusOrType.ToLower())
             {
-                statusConut++;
+                Conut++;
             }
-        }return statusConut;
+        }return Conut;
     }
     static void DisplayStatusCounts(string[] Status, int validLines) // מפעיל את פונקציית ספירה לפי סטטוס לכל ססטוס ומדפיס
     {
         Console.WriteLine("=== Reports by Status ===");
-        int Pending = CountByStatus(Status, validLines, "Pending");
+        int Pending = CountByStatusOrType(Status, validLines, "Pending");
         Console.WriteLine($"Pending: {Pending}");
-        int Approved = CountByStatus(Status, validLines, "Approved");
+        int Approved = CountByStatusOrType(Status, validLines, "Approved");
         Console.WriteLine($"Approved: {Approved}");
-        int Rejected = CountByStatus(Status, validLines, "Rejected");
+        int Rejected = CountByStatusOrType(Status, validLines, "Rejected");
         Console.WriteLine($"Rejected: {Rejected}");
     }
-    static int CountByType(string[] ReportType, int validLines, string Type) // סופר כמות דוחו"ת לפי סוג
-    {
-        int TypeConut = 0;
-        for (int i = 0; i < validLines; i++)
-        {
-            if (ReportType[i].ToLower() == Type.ToLower())
-            {
-                TypeConut++;
-            }
-        }
-        return TypeConut;
-    }
-    static void DisplayTypeCounts(string[] ReportType, int validLines) // מפעיל את פונקציית ספירה לפי דו"חות לכל דו"ח ומדפיס
+     static void DisplayTypeCounts(string[] ReportType, int validLines) // מפעיל את פונקציית ספירה לפי דו"חות לכל דו"ח ומדפיס
     {
         Console.WriteLine("=== Reports by Type === ");
-        int Collect = CountByType(ReportType, validLines, "Collect");
+        int Collect = CountByStatusOrType(ReportType, validLines, "Collect");
         Console.WriteLine($"Collect: {Collect}");
-        int Analyze = CountByType(ReportType, validLines, "Analyze");
+        int Analyze = CountByStatusOrType(ReportType, validLines, "Analyze");
         Console.WriteLine($"Analyze: {Analyze}");
-        int Recon = CountByType(ReportType, validLines, "Recon");
+        int Recon = CountByStatusOrType(ReportType, validLines, "Recon");
         Console.WriteLine($"Recon: {Recon}");
-        int Intel = CountByType(ReportType, validLines, "Intel");
+        int Intel = CountByStatusOrType(ReportType, validLines, "Intel");
         Console.WriteLine($"Intel: {Intel}");
     }
     static void DisplayHighestPriorityApproved(string[] UnitNameArrey, string[] ReportTypeArrey, int[] PriorityArrey, double[] ScoreArrey, string[] StatusArrey, int validLines)
