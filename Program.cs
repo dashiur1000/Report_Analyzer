@@ -6,16 +6,17 @@ class Test
 {
     static void Main()
     {
+        const int MAX_REPORTS = 100;
         string FileName = "reports.txt";
         string FullPath = FoundPath(FileName);
         
-        string[] UnitNameArrey = new string[100];
-        string[] ReportTypeArrey = new string[100];
-        int[] PriorityArrey = new int[100];
-        double[] ScoreArrey = new double[100];
-        string[] StatusArrey = new string[100];
+        string[] UnitNameArrey = new string[MAX_REPORTS];
+        string[] ReportTypeArrey = new string[MAX_REPORTS];
+        int[] PriorityArrey = new int[MAX_REPORTS];
+        double[] ScoreArrey = new double[MAX_REPORTS];
+        string[] StatusArrey = new string[MAX_REPORTS];
 
-        int validLines = ProcessReports(FullPath, FileName, UnitNameArrey, ReportTypeArrey, PriorityArrey, ScoreArrey, StatusArrey);
+        int validLines = ProcessReports(FullPath, FileName, UnitNameArrey, ReportTypeArrey, PriorityArrey, ScoreArrey, StatusArrey, MAX_REPORTS);
           
         
         DisplayBasicStatistics(ScoreArrey, validLines);
@@ -27,7 +28,7 @@ class Test
     static string FoundPath(string filename) // מציאת הנתיב המדוייק לקובץ הטקסט
     {
         string baseDir = AppDomain.CurrentDomain.BaseDirectory; // חדש
-        DirectoryInfo projectDir = Directory.GetParent(baseDir).Parent.Parent.Parent; // חדש
+        DirectoryInfo? projectDir = Directory.GetParent(baseDir).Parent.Parent.Parent; // חדש
         string FullPath = Path.Combine(projectDir.FullName, filename); // חדש
         return FullPath;
     }
@@ -57,13 +58,13 @@ class Test
             return notFound;
         }
     }
-    static int ProcessReports(string FullPath, string FileName, string[] UnitNameArrey, string[] ReportTypeArrey, int[] PriorityArrey, double[] ScoreArrey, string[] StatusArrey) // עובר בלולאה על השורות מאמת כל אחת ונותן מספר שורות תקינות
+    static int ProcessReports(string FullPath, string FileName, string[] UnitNameArrey, string[] ReportTypeArrey, int[] PriorityArrey, double[] ScoreArrey, string[] StatusArrey, int MAX_REPORTS) // עובר בלולאה על השורות מאמת כל אחת ונותן מספר שורות תקינות
     {
         int Valid = 0;
         int Invalid = 0;
         if (LoadFile(FullPath, FileName) != null)
         {
-            string[] AllLines = RowAnalysis(FullPath);
+            string[] AllLines = RowAnalysis(FullPath, MAX_REPORTS);
             for (int index = 0; index < AllLines.Length; index++)
             {
                 string[] lineSplit = AllLines[index].Split(',');
@@ -151,9 +152,9 @@ class Test
         }
 
     }
-    static string[] RowAnalysis(string FullPath) // קריאת הקובץ ושמירת המערך
+    static string[] RowAnalysis(string FullPath, int MAX_REPORTS) // קריאת הקובץ ושמירת המערך
     {
-        string[] lines = new string[100];
+        string[] lines = new string[MAX_REPORTS];
         if (File.Exists(FullPath)) // חדש
         {
             lines = File.ReadAllLines(FullPath);
