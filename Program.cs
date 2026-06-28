@@ -164,9 +164,7 @@ class Test
     }
     static bool ValidByEnum<T>(string variable) where T : struct, Enum  // פונקציה הבודקת האם הערך נמצא באינום 
     {
-        string variableCapital = char.ToUpper(variable[0]) + variable.Substring(1).ToLower(); // חדש
-        return Enum.TryParse<T>(variable, true, out _); // חדש
-
+        return Enum.TryParse<T>(variable, true, out _);
     }
     static int ValidByPriority(int variable) // פונקציית בדיקה האם רמת העדיפות בין 1 ל 5
     {
